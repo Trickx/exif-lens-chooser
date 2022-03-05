@@ -1,165 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>AMApplicationBuild</key>
-	<string>512</string>
-	<key>AMApplicationVersion</key>
-	<string>2.10</string>
-	<key>AMDocumentVersion</key>
-	<string>2</string>
-	<key>actions</key>
-	<array>
-		<dict>
-			<key>action</key>
-			<dict>
-				<key>AMAccepts</key>
-				<dict>
-					<key>Container</key>
-					<string>List</string>
-					<key>Optional</key>
-					<true/>
-					<key>Types</key>
-					<array>
-						<string>com.apple.applescript.object</string>
-					</array>
-				</dict>
-				<key>AMActionVersion</key>
-				<string>1.0.2</string>
-				<key>AMApplication</key>
-				<array>
-					<string>Automator</string>
-				</array>
-				<key>AMParameterProperties</key>
-				<dict>
-					<key>source</key>
-					<dict/>
-				</dict>
-				<key>AMProvides</key>
-				<dict>
-					<key>Container</key>
-					<string>List</string>
-					<key>Types</key>
-					<array>
-						<string>com.apple.applescript.object</string>
-					</array>
-				</dict>
-				<key>ActionBundlePath</key>
-				<string>/System/Library/Automator/Run AppleScript.action</string>
-				<key>ActionName</key>
-				<string>AppleScript ausführen</string>
-				<key>ActionParameters</key>
-				<dict>
-					<key>source</key>
-					<string>-- This applescript file writes lens information into EXIF structures via exiftool.-- Distribution (https://github.com/Trickx/exif-lens-chooser).-- Copyright (C) 2022 Sven Kopetzki---- This program is free software: you can redistribute it and/or modify-- it under the terms of the GNU General Public License as published by-- the Free Software Foundation, either version 3 of the License, or-- (at your option) any later version.---- This program is distributed in the hope that it will be useful,-- but WITHOUT ANY WARRANTY; without even the implied warranty of-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the-- GNU General Public License for more details.---- You should have received a copy of the GNU General Public License-- along with this program.  If not, see &lt;https:--www.gnu.org/licenses/&gt;.
-
--- NOTES
--- exiftool may list an incorrect LensType because it is limited to predefined list
--- e.g. for Canon: https://exiftool.org/TagNames/Canon.html#LensType
--- therefore Canon:LensType is set to 65535 = n/a
-property lensMap : {¬	{DisplayName:"MMZ Helios 44-2 58mm F/2.0", Lens:"Helios 44-2 58mm F2.0", ImgAperture:"2.0", ImgFocalLength:"58", LensMake:"MMZ BelOMO", LensMaxAperture:"2.0", LensMinAperture:"16.0", MaxApertureAtMinFocal:"2.0", MaxApertureAtMaxFocal:"2.0", LensMinFocalLength:"58", LensMaxFocalLength:"58", LensSerialNumber:"1007193"}, ¬	{DisplayName:"KMZ Jupiter-9 85mm  F/2.0", Lens:"Jupiter-9 85mm F2.0", ImgAperture:"2.0", ImgFocalLength:"85", LensMake:"KMZ Krasnogorsky Zavod", LensMaxAperture:"2.0", LensMinAperture:"16.0", MaxApertureAtMinFocal:"2.0", MaxApertureAtMaxFocal:"2.0", LensMinFocalLength:"85", LensMaxFocalLength:"85", LensSerialNumber:"0"} ¬		}on main(aliasList)	set lensAttr to getLens()	repeat with aAlias in aliasList		set quotedFilePosix to quoted form of (POSIX path of aAlias)				set shCmd to ¬			"/usr/local/bin/exiftool -overwrite_original -n" &amp; space &amp; ¬			"-FNumber=" &amp; quoted form of (ImgAperture of lensAttr) &amp; space &amp; ¬			"-ApertureValue=" &amp; quoted form of (ImgAperture of lensAttr) &amp; space &amp; ¬			"-FocalLength=" &amp; quoted form of (ImgFocalLength of lensAttr) &amp; space &amp; ¬			"-LensInfo=" &amp; quoted form of (LensMinFocalLength of lensAttr &amp; space &amp; LensMaxFocalLength of lensAttr &amp; space &amp; ¬			MaxApertureAtMinFocal of lensAttr &amp; space &amp; MaxApertureAtMaxFocal of lensAttr) &amp; space &amp; ¬			"-LensModel=" &amp; quoted form of (Lens of lensAttr) &amp; space &amp; ¬			"-LensMake=" &amp; quoted form of (LensMake of lensAttr) &amp; space &amp; ¬			"-LensSerialNumber=" &amp; quoted form of (LensSerialNumber of lensAttr) &amp; space &amp; ¬			"-MinFocalLength=" &amp; quoted form of (LensMinFocalLength of lensAttr) &amp; space &amp; ¬			"-MaxFocalLength=" &amp; quoted form of (LensMaxFocalLength of lensAttr) &amp; space &amp; ¬			"-MinAperture=" &amp; quoted form of (LensMinAperture of lensAttr) &amp; space &amp; ¬			"-MaxAperture=" &amp; quoted form of (LensMaxAperture of lensAttr) &amp; space &amp; ¬			"-Canon:LensType=65535" &amp; space &amp; ¬			quotedFilePosix				try			do shell script shCmd			-- get shCmd -- Enable for debugging in Automator		on error e			set alertMsg to ¬				"Error: " &amp; e &amp; return &amp; return &amp; ¬				"File: " &amp; quotedFilePosix &amp; return &amp; return &amp; ¬				"Command: " &amp; shCmd			display alert "Error occured." message alertMsg as warning buttons {"Continue", "Cancel"} default button 1 cancel button 2		end try	end repeatend mainon getLens()	set cflList to {}	repeat with aItem in my lensMap		set cflList to cflList &amp; DisplayName of aItem	end repeat		set cflPrompt to "Wähle ein Objektiv aus der Liste." &amp; return		set chosenLens to (choose from list cflList with prompt cflPrompt)	if chosenLens is false then ¬		display alert "Canceled by user" as warning buttons {"OK"} default button 1 cancel button 1		repeat with aItem in my lensMap		tell aItem			if (its DisplayName as string) = (chosenLens as string) then return aItem		end tell	end repeatend getLenson run {input, parameters}	if input is in {{}, {""}, ""} then		set aliasList to (choose file with multiple selections allowed)		main(aliasList)	else		main(input)	end ifend run</string>
-				</dict>
-				<key>BundleIdentifier</key>
-				<string>com.apple.Automator.RunScript</string>
-				<key>CFBundleVersion</key>
-				<string>1.0.2</string>
-				<key>CanShowSelectedItemsWhenRun</key>
-				<false/>
-				<key>CanShowWhenRun</key>
-				<true/>
-				<key>Category</key>
-				<array>
-					<string>AMCategoryUtilities</string>
-				</array>
-				<key>Class Name</key>
-				<string>RunScriptAction</string>
-				<key>InputUUID</key>
-				<string>8DEC43CF-B90F-4B29-B5CC-437F4EB8E7A4</string>
-				<key>Keywords</key>
-				<array>
-					<string>Ausführen</string>
-				</array>
-				<key>OutputUUID</key>
-				<string>FCB03A98-5548-4C84-8B35-9BC880F096A4</string>
-				<key>UUID</key>
-				<string>CE15ACB5-6693-420D-A254-BDE051B344D8</string>
-				<key>UnlocalizedApplications</key>
-				<array>
-					<string>Automator</string>
-				</array>
-				<key>arguments</key>
-				<dict>
-					<key>0</key>
-					<dict>
-						<key>default value</key>
-						<string>on run {input, parameters}
-	
-	(* Your script goes here *)
-	
-	return input
-end run</string>
-						<key>name</key>
-						<string>source</string>
-						<key>required</key>
-						<string>0</string>
-						<key>type</key>
-						<string>0</string>
-						<key>uuid</key>
-						<string>0</string>
-					</dict>
-				</dict>
-				<key>isViewVisible</key>
-				<integer>1</integer>
-				<key>location</key>
-				<string>529.000000:822.000000</string>
-				<key>nibPath</key>
-				<string>/System/Library/Automator/Run AppleScript.action/Contents/Resources/Base.lproj/main.nib</string>
-			</dict>
-			<key>isViewVisible</key>
-			<integer>1</integer>
-		</dict>
-	</array>
-	<key>connectors</key>
-	<dict/>
-	<key>workflowMetaData</key>
-	<dict>
-		<key>applicationBundleID</key>
-		<string>com.apple.finder</string>
-		<key>applicationBundleIDsByPath</key>
-		<dict>
-			<key>/System/Library/CoreServices/Finder.app</key>
-			<string>com.apple.finder</string>
-		</dict>
-		<key>applicationPath</key>
-		<string>/System/Library/CoreServices/Finder.app</string>
-		<key>applicationPaths</key>
-		<array>
-			<string>/System/Library/CoreServices/Finder.app</string>
-		</array>
-		<key>inputTypeIdentifier</key>
-		<string>com.apple.Automator.fileSystemObject</string>
-		<key>outputTypeIdentifier</key>
-		<string>com.apple.Automator.nothing</string>
-		<key>presentationMode</key>
-		<integer>15</integer>
-		<key>processesInput</key>
-		<integer>0</integer>
-		<key>serviceApplicationBundleID</key>
-		<string>com.apple.finder</string>
-		<key>serviceApplicationPath</key>
-		<string>/System/Library/CoreServices/Finder.app</string>
-		<key>serviceInputTypeIdentifier</key>
-		<string>com.apple.Automator.fileSystemObject</string>
-		<key>serviceOutputTypeIdentifier</key>
-		<string>com.apple.Automator.nothing</string>
-		<key>serviceProcessesInput</key>
-		<integer>0</integer>
-		<key>systemImageName</key>
-		<string>NSTouchBarControlStripScreenshot</string>
-		<key>useAutomaticInputType</key>
-		<integer>0</integer>
-		<key>workflowTypeIdentifier</key>
-		<string>com.apple.Automator.servicesMenu</string>
-	</dict>
-</dict>
-</plist>

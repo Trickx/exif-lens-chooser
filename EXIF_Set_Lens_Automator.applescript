@@ -1,6 +1,23 @@
-property lensMap : {Â¬
-	{DisplayName:"Sigma 70mm F2.8", Lens:"70mm F2.8 DG MACRO | Art 018", LensType:"Sigma 14-24mm f/2.8 DG HSM | A or other Sigma Lens", ImgAperture:"6.4", ImgFocalLength:"70", LensMake:"Sigma", LensMaxAperture:"2.8", LensMinAperture:"23.0", LensMinFocalLength:"70", LensMaxFocalLength:"70"}, Â¬
-	{DisplayName:"Helios 44-2 58mm f/2", Lens:"Helios 44-2 58mm f/2", LensType:"Helios 44-2 58mm f/2", ImgAperture:"2.0", ImgFocalLength:"58", LensMaxAperture:"2.0", LensMinAperture:"16.0", LensMinFocalLength:"70", LensMaxFocalLength:"70"} Â¬
+-- This applescript file writes lens information into EXIF structures via exiftool.
+-- Distribution (https://github.com/Trickx/exif-lens-chooser).
+-- Copyright (C) 2022 Sven Kopetzki
+--
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https:--www.gnu.org/licenses/>.
+
+property lensMap : {Â
+	{DisplayName:"MMZ Helios 44-2 58mm F/2.0", Lens:"Helios 44-2 58mm F2.0", ImgAperture:"2.0", ImgFocalLength:"58", LensMake:"MMZ BelOMO", LensMaxAperture:"2.0", LensMinAperture:"16.0", MaxApertureAtMinFocal:"2.0", MaxApertureAtMaxFocal:"2.0", LensMinFocalLength:"58", LensMaxFocalLength:"58", LensSerialNumber:"1007193"}, Â
+	{DisplayName:"KMZ Jupiter-9 85mm  F/2.0", Lens:"Jupiter-9 85mm F2.0", ImgAperture:"2.0", ImgFocalLength:"85", LensMake:"KMZ Krasnogorsky Zavod", LensMaxAperture:"2.0", LensMinAperture:"16.0", MaxApertureAtMinFocal:"2.0", MaxApertureAtMaxFocal:"2.0", LensMinFocalLength:"85", LensMaxFocalLength:"85", LensSerialNumber:"0"} Â
 		}
 
 on main(aliasList)
@@ -8,45 +25,32 @@ on main(aliasList)
 	repeat with aAlias in aliasList
 		set quotedFilePosix to quoted form of (POSIX path of aAlias)
 		
-		set shCmd to Â¬
-			"/usr/local/bin/exiftool -overwrite_original" & space & Â¬
-			"-FNumber=" & quoted form of (ImgAperture of lensAttr) & space & Â¬
-			"-ApertureValue=" & quoted form of (ImgAperture of lensAttr) & space & Â¬
-			"-FocalLength=" & quoted form of (ImgFocalLength of lensAttr) & space & Â¬
-			"-LensInfo=" & quoted form of (Lens of lensAttr) & space & Â¬
-			"-LensModel=" & quoted form of (Lens of lensAttr) & space & Â¬
-			"-MinFocalLength=" & quoted form of (LensMinFocalLength of lensAttr) & space & Â¬
-			"-MaxFocalLength=" & quoted form of (LensMaxFocalLength of lensAttr) & space & Â¬
-			"-LensType=" & quoted form of (LensType of lensAttr) & space & Â¬
-			"-MinAperture=" & quoted form of (LensMinAperture of lensAttr) & space & Â¬
-			"-MaxAperture=" & quoted form of (LensMaxAperture of lensAttr) & space & Â¬
+		set shCmd to Â
+			"/usr/local/bin/exiftool -overwrite_original -n" & space & Â
+			"-FNumber=" & quoted form of (ImgAperture of lensAttr) & space & Â
+			"-ApertureValue=" & quoted form of (ImgAperture of lensAttr) & space & Â
+			"-FocalLength=" & quoted form of (ImgFocalLength of lensAttr) & space & Â
+			"-LensInfo=" & quoted form of (LensMinFocalLength of lensAttr & space & LensMaxFocalLength of lensAttr & space & Â
+			MaxApertureAtMinFocal of lensAttr & space & MaxApertureAtMaxFocal of lensAttr) & space & Â
+			"-LensModel=" & quoted form of (Lens of lensAttr) & space & Â
+			"-LensMake=" & quoted form of (LensMake of lensAttr) & space & Â
+			"-LensSerialNumber=" & quoted form of (LensSerialNumber of lensAttr) & space & Â
+			"-MinFocalLength=" & quoted form of (LensMinFocalLength of lensAttr) & space & Â
+			"-MaxFocalLength=" & quoted form of (LensMaxFocalLength of lensAttr) & space & Â
+			"-MinAperture=" & quoted form of (LensMinAperture of lensAttr) & space & Â
+			"-MaxAperture=" & quoted form of (LensMaxAperture of lensAttr) & space & Â
+			"-Canon:LensType=65535" & space & Â
 			quotedFilePosix
-		
-		--			"-DNGLensInfo=" & quoted form of (Lens of lensAttr) & space & Â¬
-		--			"-EffectiveMaxAperture=" & quoted form of (LensMaxAperture of lensAttr) & space & Â¬
-		--			"-LensMaxAperture=" & quoted form of (LensMaxAperture of lensAttr) & space & Â¬
-		--			"-Lens=" & quoted form of (Lens of lensAttr) & space & Â¬
-		--			"-LensMake=" & quoted form of (LensMake of lensAttr) & space & Â¬
-		--			"-MinAperture=" & quoted form of (LensMinAperture of lensAttr) & space & Â¬
-		--			"-MaxAperture=" & quoted form of (LensMaxAperture of lensAttr) & space & Â¬
-		--			"-MaxApertureAtMaxFocal=" & quoted form of (LensMaxAperture of lensAttr) & space & Â¬
-		--			"-MaxApertureAtMinFocal=" & quoted form of (LensMaxAperture of lensAttr) & space & Â¬
-		--			"-MaxImgAperture=" & quoted form of (LensMaxAperture of lensAttr) & space & Â¬
-		
-		--		      "-LensID='0'" & space & Â¬
-		--			"-LensType='MF'" & space & Â¬
-		--			"-LensType='None'" & space & Â¬
-		
 		
 		try
 			do shell script shCmd
-			-- get shCmd
+			-- get shCmd -- Enable for debugging in Automator
 		on error e
-			set alertMsg to Â¬
-				"Error: " & e & return & return & Â¬
-				"File: " & quotedFilePosix & return & return & Â¬
+			set alertMsg to Â
+				"Error: " & e & return & return & Â
+				"File: " & quotedFilePosix & return & return & Â
 				"Command: " & shCmd
-			display alert "Ooopsâ€¦ iFail." message alertMsg as warning buttons {"Continue", "Cancel"} default button 1 cancel button 2
+			display alert "Error occured." message alertMsg as warning buttons {"Continue", "Cancel"} default button 1 cancel button 2
 		end try
 	end repeat
 end main
@@ -57,10 +61,10 @@ on getLens()
 		set cflList to cflList & DisplayName of aItem
 	end repeat
 	
-	set cflPrompt to "WÃ¤hle ein Objektiv aus der Liste." & return
+	set cflPrompt to "WŠhle ein Objektiv aus der Liste." & return
 	
 	set chosenLens to (choose from list cflList with prompt cflPrompt)
-	if chosenLens is false then Â¬
+	if chosenLens is false then Â
 		display alert "Canceled by user" as warning buttons {"OK"} default button 1 cancel button 1
 	
 	repeat with aItem in my lensMap
@@ -71,12 +75,10 @@ on getLens()
 end getLens
 
 on run {input, parameters}
-	-- set aliasList to (choose file with multiple selections allowed)
-	-- main(aliasList)
-	main(input)
+	if input is in {{}, {""}, ""} then
+		set aliasList to (choose file with multiple selections allowed)
+		main(aliasList)
+	else
+		main(input)
+	end if
 end run
-
-on open (droppedFiles)
-	--droplet
-	main(droppedFiles)
-end open

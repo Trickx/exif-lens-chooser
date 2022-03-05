@@ -15,6 +15,11 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <https:--www.gnu.org/licenses/>.
 
+-- NOTES
+-- exiftool may list an incorrect LensType because it is limited to predefined list
+-- e.g. for Canon: https://exiftool.org/TagNames/Canon.html#LensType
+-- therefore Canon:LensType is set to 65535 = n/a
+
 property lensMap : {Â
 	{DisplayName:"MMZ Helios 44-2 58mm F/2.0", Lens:"Helios 44-2 58mm F2.0", ImgAperture:"2.0", ImgFocalLength:"58", LensMake:"MMZ BelOMO", LensMaxAperture:"2.0", LensMinAperture:"16.0", MaxApertureAtMinFocal:"2.0", MaxApertureAtMaxFocal:"2.0", LensMinFocalLength:"58", LensMaxFocalLength:"58", LensSerialNumber:"1007193"}, Â
 	{DisplayName:"KMZ Jupiter-9 85mm  F/2.0", Lens:"Jupiter-9 85mm F2.0", ImgAperture:"2.0", ImgFocalLength:"85", LensMake:"KMZ Krasnogorsky Zavod", LensMaxAperture:"2.0", LensMinAperture:"16.0", MaxApertureAtMinFocal:"2.0", MaxApertureAtMaxFocal:"2.0", LensMinFocalLength:"85", LensMaxFocalLength:"85", LensSerialNumber:"0"} Â
@@ -82,3 +87,4 @@ on run {input, parameters}
 		main(input)
 	end if
 end run
+
